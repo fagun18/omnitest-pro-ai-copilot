@@ -1,10 +1,74 @@
 
+import { useState } from "react";
 import PageLayout from "@/components/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 const Careers = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    position: "",
+    coverLetter: "",
+    resumeLink: ""
+  });
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch("https://formspree.io/f/mldbwqdv", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ...formData,
+          subject: "Career Application"
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Application submitted!",
+          description: "Thank you for your interest. We'll review your application and be in touch soon.",
+        });
+        setFormData({
+          fullName: "",
+          email: "",
+          phone: "",
+          position: "",
+          coverLetter: "",
+          resumeLink: ""
+        });
+      } else {
+        throw new Error("Failed to submit application");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem submitting your application. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const benefits = [
     {
       title: "Competitive Compensation",
@@ -32,43 +96,9 @@ const Careers = () => {
     }
   ];
 
-  const jobOpenings = [
-    {
-      title: "Senior Frontend Engineer",
-      department: "Engineering",
-      location: "Remote (US)",
-      type: "Full-time",
-      description: "Build exceptional user interfaces for our testing platform using React and TypeScript."
-    },
-    {
-      title: "Machine Learning Engineer",
-      department: "AI Research",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      description: "Develop and improve our AI algorithms for component detection and test suggestion."
-    },
-    {
-      title: "QA Specialist",
-      department: "Product",
-      location: "Remote (Global)",
-      type: "Full-time",
-      description: "Help us build the best testing tool by testing it thoroughly yourself."
-    },
-    {
-      title: "Developer Advocate",
-      department: "Marketing",
-      location: "Remote (US/Europe)",
-      type: "Full-time",
-      description: "Be the bridge between our engineering team and the testing community."
-    },
-    {
-      title: "Customer Success Manager",
-      department: "Customer Success",
-      location: "New York, NY",
-      type: "Full-time",
-      description: "Ensure our customers get the most value from OmniTest."
-    }
-  ];
+  // Currently no open positions
+  const jobOpenings: any[] = [];
+  const hasOpenPositions = jobOpenings.length > 0;
 
   return (
     <PageLayout
@@ -97,37 +127,143 @@ const Careers = () => {
             ))}
           </div>
 
-          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Open Positions</h2>
-          <div className="space-y-6">
-            {jobOpenings.map((job, index) => (
-              <Card key={index}>
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+            {hasOpenPositions ? 'Open Positions' : 'Join Our Team'}
+          </h2>
+          
+          {hasOpenPositions ? (
+            <div className="space-y-6">
+              {jobOpenings.map((job, index) => (
+                <Card key={index}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xl">{job.title}</CardTitle>
+                      <Badge className="bg-highlight-500">{job.type}</Badge>
+                    </div>
+                    <CardDescription>
+                      <span className="text-omnitest-600 dark:text-omnitest-400">{job.department}</span> • {job.location}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">{job.description}</p>
+                    <Button variant="outline" className="border-omnitest-500 text-omnitest-500 hover:bg-omnitest-500 hover:text-white">
+                      View Job Details
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="max-w-2xl mx-auto">
+              <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">{job.title}</CardTitle>
-                    <Badge className="bg-highlight-500">{job.type}</Badge>
-                  </div>
+                  <CardTitle className="text-xl">Submit Your Application</CardTitle>
                   <CardDescription>
-                    <span className="text-omnitest-600 dark:text-omnitest-400">{job.department}</span> • {job.location}
+                    We're always looking for talented individuals to join our team. Even if we don't have any open positions right now, we'd love to keep your information on file for future opportunities.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">{job.description}</p>
-                  <Button variant="outline" className="border-omnitest-500 text-omnitest-500 hover:bg-omnitest-500 hover:text-white">
-                    View Job Details
-                  </Button>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="fullName">Full Name</Label>
+                        <Input 
+                          id="fullName"
+                          name="fullName"
+                          value={formData.fullName}
+                          onChange={handleInputChange}
+                          placeholder="Your full name"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input 
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="Your email address"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number (optional)</Label>
+                        <Input 
+                          id="phone"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="Your phone number"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="position">Position of Interest</Label>
+                        <Input 
+                          id="position"
+                          name="position"
+                          value={formData.position}
+                          onChange={handleInputChange}
+                          placeholder="What role are you interested in?"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="resumeLink">Resume/CV Link</Label>
+                      <Input 
+                        id="resumeLink"
+                        name="resumeLink"
+                        value={formData.resumeLink}
+                        onChange={handleInputChange}
+                        placeholder="Link to your resume (Google Drive, Dropbox, etc.)"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Please provide a link to your resume/CV stored on a cloud service
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="coverLetter">Cover Letter</Label>
+                      <Textarea 
+                        id="coverLetter"
+                        name="coverLetter"
+                        value={formData.coverLetter}
+                        onChange={handleInputChange}
+                        placeholder="Tell us why you'd be a great fit for OmniTest"
+                        rows={5}
+                      />
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full md:w-auto bg-omnitest-500" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit Application"}
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            </div>
+          )}
 
-          <div className="mt-12 text-center">
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Don't see a position that matches your skills? We're always looking for exceptional talent.
-            </p>
-            <Button className="bg-omnitest-500 hover:bg-omnitest-600">
-              Send General Application
-            </Button>
-          </div>
+          {hasOpenPositions && (
+            <div className="mt-12 text-center">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Don't see a position that matches your skills? We're always looking for exceptional talent.
+              </p>
+              <Button className="bg-omnitest-500 hover:bg-omnitest-600">
+                Send General Application
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 

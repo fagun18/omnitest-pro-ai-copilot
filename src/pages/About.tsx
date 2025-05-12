@@ -1,18 +1,24 @@
 
 import PageLayout from "@/components/PageLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import BookDemoModal from "@/components/BookDemoModal";
+import { useState } from "react";
 
 const About = () => {
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  
   const teamMembers = [
     {
-      name: "Sarah Johnson",
-      title: "CEO & Co-founder",
-      bio: "Former Director of QA at Enterprise Software Inc., with 15+ years of experience in software testing and quality assurance.",
-      avatar: "SJ"
+      name: "Mejbaur Bahar Fagun",
+      title: "CEO & Founder",
+      bio: "Software Engineer in Test (II) with expertise in building innovative testing solutions for modern web applications.",
+      avatar: "MF",
+      image: "/lovable-uploads/ec4ce741-f02f-4d1e-87f8-218f44a644a6.png"
     },
     {
       name: "Michael Chen",
-      title: "CTO & Co-founder",
+      title: "CTO",
       bio: "AI and machine learning expert with previous experience at major tech companies developing intelligent systems.",
       avatar: "MC"
     },
@@ -59,7 +65,7 @@ const About = () => {
           <div className="max-w-3xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Our Story</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              OmniTest was founded in 2023 by a team of experienced software testing professionals who recognized a critical gap in the market: as web applications grew increasingly complex, traditional testing methods struggled to keep pace, resulting in missed bugs and quality issues.
+              OmniTest was founded in 2025 by a team of experienced software testing professionals who recognized a critical gap in the market: as web applications grew increasingly complex, traditional testing methods struggled to keep pace, resulting in missed bugs and quality issues.
             </p>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
               Our founders experienced firsthand the challenges of maintaining comprehensive test coverage while under pressure to deliver faster. They envisioned a solution that would leverage artificial intelligence to augment human testers, making them more effective and efficient.
@@ -92,8 +98,11 @@ const About = () => {
             {teamMembers.map((member, index) => (
               <div key={index} className="text-center">
                 <Avatar className="h-32 w-32 mx-auto mb-4">
-                  <AvatarImage src="" alt={member.name} />
-                  <AvatarFallback className="bg-omnitest-200 text-omnitest-600 text-xl">{member.avatar}</AvatarFallback>
+                  {member.image ? (
+                    <AvatarImage src={member.image} alt={member.name} className="object-cover" />
+                  ) : (
+                    <AvatarFallback className="bg-omnitest-200 text-omnitest-600 text-xl">{member.avatar}</AvatarFallback>
+                  )}
                 </Avatar>
                 <h3 className="font-bold text-lg">{member.name}</h3>
                 <p className="text-omnitest-600 dark:text-omnitest-400 mb-2">{member.title}</p>
@@ -111,12 +120,23 @@ const About = () => {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               We're building the future of software testing and we're looking for talented individuals to join our team.
             </p>
-            <a href="/careers" className="inline-block px-6 py-3 bg-omnitest-500 hover:bg-omnitest-600 text-white rounded-md">
-              View Open Positions
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="/careers" className="inline-block px-6 py-3 bg-omnitest-500 hover:bg-omnitest-600 text-white rounded-md">
+                View Open Positions
+              </a>
+              <Button 
+                onClick={() => setIsDemoModalOpen(true)}
+                className="px-6 py-3"
+                style={{ backgroundColor: "#FF7D35", borderColor: "#FF7D35" }}
+              >
+                Book a Demo
+              </Button>
+            </div>
           </div>
         </div>
       </section>
+      
+      <BookDemoModal isOpen={isDemoModalOpen} onClose={() => setIsDemoModalOpen(false)} />
     </PageLayout>
   );
 };

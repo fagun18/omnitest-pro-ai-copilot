@@ -16,7 +16,8 @@ const Features = () => {
         "Real-time component analysis",
         "Automatic process flow mapping",
         "Identifies hidden elements and states"
-      ]
+      ],
+      image: "/placeholder.svg"
     },
     {
       title: "Adaptive Test Suggestions",
@@ -31,7 +32,8 @@ const Features = () => {
         "Priority-based testing suggestions",
         "Security and accessibility checks built-in",
         "Learns from your testing patterns"
-      ]
+      ],
+      image: "/placeholder.svg"
     },
     {
       title: "Coverage Dashboard",
@@ -46,7 +48,8 @@ const Features = () => {
         "Exportable audit reports",
         "Risk assessment visualization",
         "Coverage trend analysis"
-      ]
+      ],
+      image: "/placeholder.svg"
     }
   ];
 
@@ -69,6 +72,15 @@ const Features = () => {
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-omnitest-100 dark:bg-omnitest-700 text-omnitest-600 dark:text-omnitest-200 mb-6">
                 {feature.icon}
               </div>
+              
+              <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-md mb-6 overflow-hidden">
+                <img 
+                  src={feature.image} 
+                  alt={`${feature.title} illustration`} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
               <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 {feature.description}

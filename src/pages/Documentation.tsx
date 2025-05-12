@@ -3,32 +3,139 @@ import PageLayout from "@/components/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Book, Code, VideoIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Documentation = () => {
-  const gettingStartedDocs = [
+  const documentationSections = [
     {
       title: "Installation Guide",
       description: "Learn how to install OmniTest on different browsers",
       icon: <FileText className="h-5 w-5" />,
-      link: "#installation"
+      link: "#installation",
+      content: `
+        <h3 class="text-xl font-bold mb-4">Installing OmniTest Browser Extension</h3>
+        <p class="mb-4">Follow these simple steps to install OmniTest on your preferred browser:</p>
+        <ol class="list-decimal pl-5 mb-6 space-y-2">
+          <li>Visit the browser extension store for your browser (Chrome Web Store, Firefox Add-ons, etc.)</li>
+          <li>Search for "OmniTest" in the store or use the direct link from our website</li>
+          <li>Click "Add to Browser" or "Install" button</li>
+          <li>Accept the permissions required</li>
+          <li>Once installed, the OmniTest icon will appear in your browser toolbar</li>
+          <li>Click the icon to start using OmniTest</li>
+        </ol>
+        <p class="mb-4">Note: OmniTest supports the following browsers:</p>
+        <ul class="list-disc pl-5 mb-4">
+          <li>Google Chrome (version 88 and later)</li>
+          <li>Microsoft Edge (version 88 and later)</li>
+          <li>Mozilla Firefox (version 86 and later)</li>
+          <li>Safari (version 14 and later)</li>
+        </ul>
+      `
     },
     {
       title: "Quick Start Tutorial",
       description: "Get up and running with OmniTest in 5 minutes",
       icon: <Book className="h-5 w-5" />,
-      link: "#quickstart"
+      link: "#quickstart",
+      content: `
+        <h3 class="text-xl font-bold mb-4">Quick Start Guide</h3>
+        <p class="mb-4">Follow this simple 5-minute tutorial to get started with OmniTest:</p>
+        <ol class="list-decimal pl-5 mb-6 space-y-4">
+          <li>
+            <p class="font-semibold">Open the extension</p>
+            <p>Click on the OmniTest icon in your browser toolbar to open the extension panel</p>
+          </li>
+          <li>
+            <p class="font-semibold">Navigate to your web application</p>
+            <p>Go to the web application you want to test in the same browser window</p>
+          </li>
+          <li>
+            <p class="font-semibold">Start scanning</p>
+            <p>Click "Start Scan" in the OmniTest panel to analyze the current page</p>
+          </li>
+          <li>
+            <p class="font-semibold">Review detected components</p>
+            <p>OmniTest will identify interactive elements, forms, and user flows on the page</p>
+          </li>
+          <li>
+            <p class="font-semibold">Generate test suggestions</p>
+            <p>Click "Generate Tests" to receive AI-powered test case suggestions</p>
+          </li>
+        </ol>
+        <p class="mb-4">Congratulations! You've just completed your first OmniTest scan and generated your first test suggestions.</p>
+      `
     },
     {
       title: "Configuration Options",
       description: "Customize OmniTest for your specific needs",
       icon: <Code className="h-5 w-5" />,
-      link: "#configuration"
+      link: "#configuration",
+      content: `
+        <h3 class="text-xl font-bold mb-4">Configuration Settings</h3>
+        <p class="mb-4">OmniTest offers several configuration options to customize your testing experience:</p>
+        
+        <h4 class="text-lg font-semibold mb-2">General Settings</h4>
+        <ul class="list-disc pl-5 mb-4 space-y-2">
+          <li><span class="font-medium">Scan Depth:</span> Control how deep OmniTest scans your application (Basic, Standard, Comprehensive)</li>
+          <li><span class="font-medium">Automatic Scanning:</span> Enable/disable automatic scanning when navigating to new pages</li>
+          <li><span class="font-medium">Element Highlighting:</span> Toggle visual highlighting of detected elements</li>
+          <li><span class="font-medium">Dark Mode:</span> Switch between light and dark interface themes</li>
+        </ul>
+        
+        <h4 class="text-lg font-semibold mb-2">Test Generation Settings</h4>
+        <ul class="list-disc pl-5 mb-4 space-y-2">
+          <li><span class="font-medium">Test Format:</span> Choose output format (Plain text, Gherkin, Cypress, Selenium, etc.)</li>
+          <li><span class="font-medium">Test Priority:</span> Focus on specific types of tests (Functional, Security, Accessibility, Performance)</li>
+          <li><span class="font-medium">Test Detail Level:</span> Set the granularity of generated test cases</li>
+        </ul>
+        
+        <h4 class="text-lg font-semibold mb-2">Integration Settings</h4>
+        <ul class="list-disc pl-5 mb-4 space-y-2">
+          <li><span class="font-medium">Export Options:</span> Configure integrations with test management tools</li>
+          <li><span class="font-medium">API Keys:</span> Manage API keys for third-party integrations</li>
+          <li><span class="font-medium">Webhook URLs:</span> Set up webhooks for test result notifications</li>
+        </ul>
+      `
     },
     {
       title: "Video Tutorials",
       description: "Watch step-by-step guides on using OmniTest",
       icon: <VideoIcon className="h-5 w-5" />,
-      link: "#videos"
+      link: "#videos",
+      content: `
+        <h3 class="text-xl font-bold mb-4">Video Tutorial Library</h3>
+        <p class="mb-6">Learn OmniTest features through our comprehensive video tutorial library:</p>
+        
+        <div class="space-y-6">
+          <div>
+            <h4 class="text-lg font-semibold mb-2">Getting Started with OmniTest</h4>
+            <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center mb-2">
+              <span class="text-gray-500">Video Thumbnail</span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Duration: 5:23 • Learn the basics of OmniTest and how to get started with your first test.</p>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-semibold mb-2">Advanced Component Detection</h4>
+            <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center mb-2">
+              <span class="text-gray-500">Video Thumbnail</span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Duration: 8:17 • Deep dive into how OmniTest detects complex web components.</p>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-semibold mb-2">Integrating with Your CI/CD Pipeline</h4>
+            <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center mb-2">
+              <span class="text-gray-500">Video Thumbnail</span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Duration: 12:05 • Learn how to integrate OmniTest with your existing CI/CD workflows.</p>
+          </div>
+        </div>
+        
+        <div class="mt-6">
+          <Button className="bg-omnitest-500 hover:bg-omnitest-600">View Full Video Library</Button>
+        </div>
+      `
     }
   ];
 
@@ -40,15 +147,15 @@ const Documentation = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <Tabs defaultValue="getting-started" className="max-w-4xl mx-auto">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="getting-started">Getting Started</TabsTrigger>
               <TabsTrigger value="user-guide">User Guide</TabsTrigger>
               <TabsTrigger value="api-reference">API Reference</TabsTrigger>
-              <TabsTrigger value="integrations">Integrations</TabsTrigger>
             </TabsList>
+            
             <TabsContent value="getting-started">
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {gettingStartedDocs.map((doc, index) => (
+                {documentationSections.map((doc, index) => (
                   <Card key={index}>
                     <CardHeader className="flex flex-row items-center space-y-0 pb-2">
                       <div className="mr-2 bg-omnitest-100 dark:bg-omnitest-800 p-1.5 rounded-md text-omnitest-600 dark:text-omnitest-300">
@@ -70,36 +177,14 @@ const Documentation = () => {
                   </Card>
                 ))}
               </div>
-              <div className="mt-8 p-6 bg-gray-50 dark:bg-omnitest-900/50 rounded-lg border border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-lg mb-2">Installation Instructions</h3>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-1">1. Install from Chrome Web Store</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      Visit the Chrome Web Store and search for "OmniTest" or click the direct link below.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">2. Create an Account</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      Sign up for a free account to start using OmniTest.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">3. Grant Permissions</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      Allow OmniTest to access the websites you want to test.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">4. Start Testing</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      Navigate to your web application and click the OmniTest icon to begin.
-                    </p>
-                  </div>
+              
+              {documentationSections.map((section, index) => (
+                <div key={index} id={section.link.substring(1)} className="mt-12 p-6 bg-white dark:bg-omnitest-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                  <div dangerouslySetInnerHTML={{ __html: section.content }} />
                 </div>
-              </div>
+              ))}
             </TabsContent>
+            
             <TabsContent value="user-guide">
               <div className="mt-6 p-8 bg-white dark:bg-omnitest-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <h3 className="text-xl font-bold mb-4">User Guide Contents</h3>
@@ -141,6 +226,7 @@ const Documentation = () => {
                 </a>
               </div>
             </TabsContent>
+            
             <TabsContent value="api-reference">
               <div className="mt-6 p-8 bg-white dark:bg-omnitest-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <h3 className="text-xl font-bold mb-4">API Reference</h3>
@@ -179,52 +265,6 @@ const Documentation = () => {
                 <a href="#full-api-docs" className="mt-6 inline-block text-omnitest-600 dark:text-omnitest-400 hover:underline">
                   View full API documentation →
                 </a>
-              </div>
-            </TabsContent>
-            <TabsContent value="integrations">
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Jira</CardTitle>
-                    <CardDescription>Integrate with Jira for issue tracking</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                      Automatically create Jira tickets from test cases and link test results to existing issues.
-                    </p>
-                    <a href="#jira-integration" className="text-sm text-omnitest-600 dark:text-omnitest-400 hover:underline">
-                      Setup instructions →
-                    </a>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>TestRail</CardTitle>
-                    <CardDescription>Sync test cases with TestRail</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                      Export test cases and results directly to TestRail for comprehensive test management.
-                    </p>
-                    <a href="#testrail-integration" className="text-sm text-omnitest-600 dark:text-omnitest-400 hover:underline">
-                      Setup instructions →
-                    </a>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>GitHub</CardTitle>
-                    <CardDescription>Integrate with GitHub workflows</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                      Connect OmniTest with GitHub Actions for automated test coverage reporting on pull requests.
-                    </p>
-                    <a href="#github-integration" className="text-sm text-omnitest-600 dark:text-omnitest-400 hover:underline">
-                      Setup instructions →
-                    </a>
-                  </CardContent>
-                </Card>
               </div>
             </TabsContent>
           </Tabs>

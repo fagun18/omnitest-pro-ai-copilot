@@ -1,8 +1,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import BookDemoModal from "./BookDemoModal";
 
 const CTA = () => {
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  
   return (
     <section id="contact" className="py-20 bg-gradient-to-r from-omnitest-400 to-omnitest-600 text-white">
       <div className="container mx-auto px-4">
@@ -23,6 +27,7 @@ const CTA = () => {
               size="lg" 
               className="border-white text-white hover:bg-white/10 font-medium px-8 py-6"
               style={{ backgroundColor: "#FF7D35", borderColor: "#FF7D35" }}
+              onClick={() => setIsDemoModalOpen(true)}
             >
               Schedule Demo
             </Button>
@@ -44,6 +49,8 @@ const CTA = () => {
           </div>
         </div>
       </div>
+      
+      <BookDemoModal isOpen={isDemoModalOpen} onClose={() => setIsDemoModalOpen(false)} />
     </section>
   );
 };

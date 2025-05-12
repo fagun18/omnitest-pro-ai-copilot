@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Mail, MapPin, Phone, User, Send } from "lucide-react";
+import { MapPin, Send } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -161,39 +161,12 @@ const Contact = () => {
               <div className="space-y-6">
                 <Card>
                   <CardContent className="flex items-start p-6">
-                    <Mail className="mr-4 h-5 w-5 text-omnitest-500" />
-                    <div>
-                      <h3 className="font-bold mb-1">Email Us</h3>
-                      <p className="text-gray-600 dark:text-gray-300 mb-1">General Inquiries:</p>
-                      <a href="mailto:info@omnitest.com" className="text-omnitest-600 dark:text-omnitest-400 hover:underline">info@omnitest.com</a>
-                      <p className="text-gray-600 dark:text-gray-300 mt-2 mb-1">Support:</p>
-                      <a href="mailto:support@omnitest.com" className="text-omnitest-600 dark:text-omnitest-400 hover:underline">support@omnitest.com</a>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="flex items-start p-6">
-                    <Phone className="mr-4 h-5 w-5 text-omnitest-500" />
-                    <div>
-                      <h3 className="font-bold mb-1">Call Us</h3>
-                      <p className="text-gray-600 dark:text-gray-300 mb-1">Sales:</p>
-                      <a href="tel:+1-800-123-4567" className="text-omnitest-600 dark:text-omnitest-400 hover:underline">+1 (800) 123-4567</a>
-                      <p className="text-gray-600 dark:text-gray-300 mt-2 mb-1">Support:</p>
-                      <a href="tel:+1-800-123-4568" className="text-omnitest-600 dark:text-omnitest-400 hover:underline">+1 (800) 123-4568</a>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="flex items-start p-6">
                     <MapPin className="mr-4 h-5 w-5 text-omnitest-500" />
                     <div>
                       <h3 className="font-bold mb-1">Our Headquarters</h3>
                       <address className="not-italic text-gray-600 dark:text-gray-300">
-                        123 Testing Street<br />
-                        San Francisco, CA 94107<br />
-                        United States
+                        Benapole-7431<br />
+                        Jashore, Bangladesh
                       </address>
                     </div>
                   </CardContent>
@@ -202,7 +175,7 @@ const Contact = () => {
                 <div className="bg-gray-100 dark:bg-omnitest-900/50 p-6 rounded-lg">
                   <h3 className="font-bold mb-3">Office Hours</h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-1">Monday - Friday:</p>
-                  <p className="font-medium mb-2">9:00 AM - 6:00 PM (PST)</p>
+                  <p className="font-medium mb-2">9:00 AM - 6:00 PM (BST)</p>
                   <p className="text-gray-600 dark:text-gray-300 mb-1">Saturday - Sunday:</p>
                   <p className="font-medium">Closed</p>
                 </div>
