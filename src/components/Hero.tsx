@@ -1,7 +1,11 @@
 
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import BookDemoModal from "./BookDemoModal";
 
 const Hero = () => {
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  
   return (
     <section className="relative pt-28 pb-20 md:pt-40 md:pb-28">
       <div className="absolute inset-0 bg-gradient-to-b from-omnitest-50/60 to-transparent z-0"></div>
@@ -23,9 +27,14 @@ const Hero = () => {
           
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <Button size="lg" className="bg-highlight hover:bg-highlight-600 text-white font-medium px-6 py-6">
-              Start Free Trial
+              Try Now Free
             </Button>
-            <Button variant="outline" size="lg" className="border-omnitest text-omnitest font-medium px-6 py-6">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-omnitest text-omnitest font-medium px-6 py-6"
+              onClick={() => setIsDemoModalOpen(true)}
+            >
               Book a Demo
             </Button>
           </div>
@@ -143,6 +152,8 @@ const Hero = () => {
           ))}
         </div>
       </div>
+      
+      <BookDemoModal isOpen={isDemoModalOpen} onClose={() => setIsDemoModalOpen(false)} />
     </section>
   );
 };

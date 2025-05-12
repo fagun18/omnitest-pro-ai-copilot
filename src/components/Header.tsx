@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Box, Building } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
@@ -51,7 +51,10 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           <div className="relative group">
-            <Link to="/product" className="text-sm font-medium hover:text-omnitest-400 transition-colors">Product</Link>
+            <Link to="/product" className="text-sm font-medium hover:text-omnitest-400 transition-colors flex items-center gap-1">
+              <Box className="h-4 w-4" />
+              Product
+            </Link>
             <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-omnitest-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
               <div className="py-2">
                 <Link to="/features" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-omnitest-700">Features</Link>
@@ -62,7 +65,10 @@ const Header = () => {
           </div>
           {/* Pricing link hidden temporarily */}
           <div className="relative group">
-            <Link to="/company" className="text-sm font-medium hover:text-omnitest-400 transition-colors">Company</Link>
+            <Link to="/company" className="text-sm font-medium hover:text-omnitest-400 transition-colors flex items-center gap-1">
+              <Building className="h-4 w-4" />
+              Company
+            </Link>
             <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-omnitest-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
               <div className="py-2">
                 <Link to="/about" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-omnitest-700">About</Link>
@@ -99,12 +105,16 @@ const Header = () => {
         isMenuOpen ? "max-h-[calc(100vh-4rem)] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
       )}>
         <div className="container px-4 py-4 flex flex-col gap-4">
-          <Link to="/product" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>Product</Link>
+          <Link to="/product" className="text-sm font-medium p-2 hover:bg-muted rounded-md flex items-center gap-1" onClick={toggleMenu}>
+            <Box className="h-4 w-4" /> Product
+          </Link>
           <Link to="/features" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Features</Link>
           <Link to="/case-studies" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Case Studies</Link>
           <Link to="/documentation" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Documentation</Link>
           {/* Pricing link hidden temporarily */}
-          <Link to="/company" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>Company</Link>
+          <Link to="/company" className="text-sm font-medium p-2 hover:bg-muted rounded-md flex items-center gap-1" onClick={toggleMenu}>
+            <Building className="h-4 w-4" /> Company
+          </Link>
           <Link to="/about" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>About</Link>
           <Link to="/blog" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Blog</Link>
           <Link to="/careers" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Careers</Link>
