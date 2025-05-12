@@ -1,5 +1,5 @@
 
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -37,7 +37,7 @@ const Footer = () => {
                   fill="white"
                 />
               </svg>
-              <span className="text-xl font-bold">OmniTest Pro</span>
+              <span className="text-xl font-bold">OmniTest</span>
             </div>
             <p className="text-gray-300 mb-4">
               AI-powered testing co-pilot that ensures comprehensive test coverage for web applications.
@@ -64,30 +64,30 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Product</h3>
             <ul className="space-y-2">
-              <li><a href="#features" className="text-gray-300 hover:text-white">Features</a></li>
-              <li><a href="#pricing" className="text-gray-300 hover:text-white">Pricing</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Case Studies</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Documentation</a></li>
+              <li><Link to="/features" className="text-gray-300 hover:text-white">Features</Link></li>
+              <li><Link to="/pricing" className="text-gray-300 hover:text-white">Pricing</Link></li>
+              <li><Link to="/case-studies" className="text-gray-300 hover:text-white">Case Studies</Link></li>
+              <li><Link to="/documentation" className="text-gray-300 hover:text-white">Documentation</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Company</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white">About</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Blog</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white">Careers</a></li>
-              <li><a href="#contact" className="text-gray-300 hover:text-white">Contact</a></li>
+              <li><Link to="/about" className="text-gray-300 hover:text-white">About</Link></li>
+              <li><Link to="/blog" className="text-gray-300 hover:text-white">Blog</Link></li>
+              <li><Link to="/careers" className="text-gray-300 hover:text-white">Careers</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-white">Contact</Link></li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between">
-          <p className="text-gray-300 text-sm">© {currentYear} OmniTest Pro. All rights reserved.</p>
+          <p className="text-gray-300 text-sm">© {currentYear} OmniTest. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-300 hover:text-white text-sm">Privacy Policy</a>
-            <a href="#" className="text-gray-300 hover:text-white text-sm">Terms of Service</a>
-            <a href="#" className="text-gray-300 hover:text-white text-sm">Cookie Policy</a>
+            <Link to="/privacy-policy" className="text-gray-300 hover:text-white text-sm">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-gray-300 hover:text-white text-sm">Terms of Service</Link>
+            <Link to="/cookie-policy" className="text-gray-300 hover:text-white text-sm">Cookie Policy</Link>
           </div>
         </div>
       </div>
