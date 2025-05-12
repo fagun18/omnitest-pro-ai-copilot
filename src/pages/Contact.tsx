@@ -4,11 +4,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, User, Send } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Contact = () => {
+  const { toast } = useToast();
+  const [formState, setFormState] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    company: "",
+    message: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormState(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("https://formspree.io/f/mldbwqdv", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formState)
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Message sent!",
+          description: "Thank you for contacting us. We'll be in touch soon.",
+        });
+        setFormState({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          company: "",
+          message: ""
+        });
+      } else {
+        throw new Error("Failed to submit form");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <PageLayout
       title="Contact Us"
@@ -19,57 +76,84 @@ const Contact = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="col-span-2">
               <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
-              <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="Enter your first name" />
+                    <Input 
+                      id="firstName" 
+                      placeholder="Enter your first name" 
+                      value={formState.firstName}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Enter your last name" />
+                    <Input 
+                      id="lastName" 
+                      placeholder="Enter your last name" 
+                      value={formState.lastName}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" placeholder="Enter your email address" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="Enter your email address" 
+                      value={formState.email}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number (optional)</Label>
-                    <Input id="phone" placeholder="Enter your phone number" />
+                    <Input 
+                      id="phone" 
+                      placeholder="Enter your phone number" 
+                      value={formState.phone}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="company">Company</Label>
-                  <Input id="company" placeholder="Enter your company name" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="inquiry-type">Inquiry Type</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select inquiry type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sales">Sales Inquiry</SelectItem>
-                      <SelectItem value="support">Technical Support</SelectItem>
-                      <SelectItem value="demo">Request a Demo</SelectItem>
-                      <SelectItem value="partnership">Partnership Opportunity</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input 
+                    id="company" 
+                    placeholder="Enter your company name" 
+                    value={formState.company}
+                    onChange={handleChange}
+                  />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="message">Your Message</Label>
-                  <Textarea id="message" placeholder="Please provide details about your inquiry" rows={6} />
+                  <Textarea 
+                    id="message" 
+                    placeholder="Please provide details about your inquiry" 
+                    rows={6} 
+                    value={formState.message}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 
-                <Button className="w-full md:w-auto bg-highlight hover:bg-highlight-600">Submit Message</Button>
-              </div>
+                <Button 
+                  className="w-full md:w-auto bg-highlight hover:bg-highlight-600" 
+                  type="submit" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Submit Message'}
+                  <Send className="ml-2 h-4 w-4" />
+                </Button>
+              </form>
             </div>
             
             <div>

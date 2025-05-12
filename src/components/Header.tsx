@@ -60,7 +60,7 @@ const Header = () => {
               </div>
             </div>
           </div>
-          <Link to="/pricing" className="text-sm font-medium hover:text-omnitest-400 transition-colors">Pricing</Link>
+          {/* Pricing link hidden temporarily */}
           <div className="relative group">
             <Link to="/company" className="text-sm font-medium hover:text-omnitest-400 transition-colors">Company</Link>
             <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-omnitest-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
@@ -75,10 +75,10 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          <Link to="/login" className="text-sm font-medium hover:text-omnitest-400 transition-colors">
-            Login
-          </Link>
-          <Button className="bg-highlight hover:bg-highlight-600 text-white">Get Started</Button>
+          {/* Login link hidden temporarily */}
+          <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer">
+            <Button className="bg-highlight hover:bg-highlight-600 text-white">Get Extension</Button>
+          </a>
         </div>
 
         {/* Mobile Menu Button */}
@@ -103,15 +103,17 @@ const Header = () => {
           <Link to="/features" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Features</Link>
           <Link to="/case-studies" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Case Studies</Link>
           <Link to="/documentation" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Documentation</Link>
-          <Link to="/pricing" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>Pricing</Link>
+          {/* Pricing link hidden temporarily */}
           <Link to="/company" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>Company</Link>
           <Link to="/about" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>About</Link>
           <Link to="/blog" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Blog</Link>
           <Link to="/careers" className="text-sm font-medium p-2 hover:bg-muted rounded-md pl-6" onClick={toggleMenu}>Careers</Link>
           <Link to="/contact" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>Contact</Link>
           <div className="flex flex-col gap-2 mt-2">
-            <Link to="/login" className="text-sm font-medium p-2 hover:bg-muted rounded-md" onClick={toggleMenu}>Login</Link>
-            <Button className="bg-highlight hover:bg-highlight-600 text-white">Get Started</Button>
+            {/* Login link hidden temporarily */}
+            <a href="https://chrome.google.com/webstore" className="w-full">
+              <Button className="bg-highlight hover:bg-highlight-600 text-white w-full">Get Extension</Button>
+            </a>
           </div>
         </div>
       </div>

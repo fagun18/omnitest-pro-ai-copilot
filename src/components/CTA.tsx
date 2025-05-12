@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const CTA = () => {
   return (
@@ -8,14 +9,21 @@ const CTA = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Transform Your Testing Process Today</h2>
           <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
-            Join hundreds of companies that have revolutionized their QA approach with OmniTest Pro's AI-powered testing insights.
+            Join hundreds of companies that have revolutionized their QA approach with OmniTest's AI-powered testing insights.
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-            <Button size="lg" className="bg-white hover:bg-gray-100 text-omnitest-600 font-medium px-8 py-6">
-              Start Free Trial
-            </Button>
-            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 font-medium px-8 py-6">
+            <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" className="bg-white hover:bg-gray-100 text-omnitest-600 font-medium px-8 py-6">
+                Get Browser Extension
+              </Button>
+            </a>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-white text-white hover:bg-white/10 font-medium px-8 py-6"
+              style={{ backgroundColor: "#FF7D35", borderColor: "#FF7D35" }}
+            >
               Schedule Demo
             </Button>
           </div>
