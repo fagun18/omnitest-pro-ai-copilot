@@ -17,11 +17,9 @@ const CTA = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-            <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer">
-              <Button size="lg" className="bg-white hover:bg-gray-100 text-omnitest-600 font-medium px-8 py-6">
-                Get Browser Extension
-              </Button>
-            </a>
+            <Button size="lg" className="bg-white hover:bg-gray-100 text-omnitest-600 font-medium px-8 py-6" asChild>
+              <Link to="/system">Try Now Free</Link>
+            </Button>
             <Button 
               variant="outline" 
               size="lg" 

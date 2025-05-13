@@ -22,6 +22,7 @@ import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
+import TestingSystem from "./pages/TestingSystem";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/features" element={<Features />} />
           <Route path="/case-studies" element={<CaseStudies />} />
           <Route path="/documentation" element={<Documentation />} />
+          <Route path="/system" element={<TestingSystem />} />
           
           {/* Company Routes */}
           <Route path="/about" element={<About />} />

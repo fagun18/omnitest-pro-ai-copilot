@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import BookDemoModal from "./BookDemoModal";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
@@ -26,8 +27,8 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Button size="lg" className="bg-highlight hover:bg-highlight-600 text-white font-medium px-6 py-6">
-              Try Now Free
+            <Button size="lg" className="bg-highlight hover:bg-highlight-600 text-white font-medium px-6 py-6" asChild>
+              <Link to="/system">Try Now Free</Link>
             </Button>
             <Button 
               variant="outline" 
