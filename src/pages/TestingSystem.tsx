@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -8,6 +9,30 @@ import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Checkbox } from "@/components/ui/checkbox";
+
+// Interface for test case types
+interface TestCase {
+  id: string;
+  name: string;
+  description: string;
+  priority: "high" | "medium" | "low";
+}
+
+interface DetectedComponent {
+  id: string;
+  name: string;
+  covered: boolean;
+  status: "covered" | "not-tested" | "partial";
+  testCases: TestCase[];
+}
+
+interface AISuggestion {
+  id: string;
+  name: string;
+  description: string;
+}
 
 const TestingSystem = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -15,13 +40,74 @@ const TestingSystem = () => {
   const [scanning, setScanning] = useState(false);
   const [scanComplete, setScanComplete] = useState(false);
   const [elementCount, setElementCount] = useState(0);
-  const [testSuggestions, setTestSuggestions] = useState<Array<{
-    name: string;
-    covered: boolean;
-    status: "covered" | "not-tested" | "partial";
-    testCases: number;
-  }>>([]);
+  const [testSuggestions, setTestSuggestions] = useState<DetectedComponent[]>([]);
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
   const [aiSuggestion, setAiSuggestion] = useState("");
+  const [expandedItems, setExpandedItems] = useState<{[key: string]: boolean}>({});
+  
+  // Toggle expanded state for a component
+  const toggleExpanded = (id: string) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+  
+  // Handle checkbox change for a component
+  const handleCheckboxChange = (id: string) => {
+    setTestSuggestions(prev => 
+      prev.map(item => 
+        item.id === id 
+          ? { 
+              ...item, 
+              covered: !item.covered, 
+              status: !item.covered ? "covered" : "not-tested" 
+            } 
+          : item
+      )
+    );
+    
+    // Show toast notification
+    toast({
+      title: "Test status updated",
+      description: "The test status has been updated successfully.",
+    });
+  };
+  
+  // Handle Add button click for AI suggestions
+  const handleAddSuggestion = (suggestion: AISuggestion) => {
+    // Check if suggestion already exists in testSuggestions
+    const exists = testSuggestions.some(item => item.name === suggestion.name);
+    
+    if (!exists) {
+      const newTestSuggestion: DetectedComponent = {
+        id: suggestion.id,
+        name: suggestion.name,
+        covered: false,
+        status: "not-tested",
+        testCases: [
+          {
+            id: `tc-${suggestion.id}-1`,
+            name: `Verify ${suggestion.name.toLowerCase()}`,
+            description: suggestion.description,
+            priority: "medium"
+          }
+        ]
+      };
+      
+      setTestSuggestions(prev => [...prev, newTestSuggestion]);
+      
+      // Show success toast
+      toast({
+        title: "Test added",
+        description: `${suggestion.name} has been added to your test cases.`,
+        variant: "default"
+      });
+      
+      // Remove from AI suggestions
+      setAiSuggestions(prev => prev.filter(item => item.id !== suggestion.id));
+    }
+  };
   
   const handleUrlSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,7 +125,9 @@ const TestingSystem = () => {
     setScanning(true);
     setScanComplete(false);
     setTestSuggestions([]);
+    setAiSuggestions([]);
     setElementCount(0);
+    setExpandedItems({});
     
     // Simulate scanning process
     setTimeout(() => {
@@ -59,39 +147,321 @@ const TestingSystem = () => {
         setScanning(false);
         setScanComplete(true);
         
-        // Generate test suggestions based on the URL
-        const generatedSuggestions = [
-          {
-            name: "Payment Form Validation",
-            covered: true,
-            status: "covered" as const,
-            testCases: 5
-          },
-          {
-            name: "Cart Summary Component",
-            covered: true,
-            status: "covered" as const,
-            testCases: 3
-          },
-          {
-            name: "Payment Gateway Fallback",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: 2
-          },
-          {
-            name: "Order Confirmation Flow",
-            covered: false,
-            status: "partial" as const,
-            testCases: 4
-          }
-        ];
+        // Generate dynamic test suggestions based on the URL
+        const urlDomain = new URL(targetUrl.startsWith('http') ? targetUrl : `https://${targetUrl}`).hostname;
+        console.log("Analyzing domain:", urlDomain);
         
-        setTestSuggestions(generatedSuggestions);
-        setAiSuggestion("Test payment failure scenarios for improved coverage.");
+        // Dynamic test suggestions based on the URL
+        const generatedSuggestions = getAnalysisByDomain(urlDomain);
+        setTestSuggestions(generatedSuggestions.components);
+        setAiSuggestions(generatedSuggestions.suggestions);
+        setAiSuggestion(generatedSuggestions.aiMessage);
         
       }, 3000);
     }, 1000);
+  };
+  
+  // Dynamic analysis based on domain
+  const getAnalysisByDomain = (domain: string) => {
+    // E-commerce detection
+    if (domain.includes('shop') || domain.includes('store') || domain.includes('commerce') || domain.includes('cart')) {
+      return {
+        components: [
+          {
+            id: "comp-1",
+            name: "Payment Form Validation",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-1-1", 
+                name: "Validate credit card number format", 
+                description: "Test that invalid credit card formats are rejected", 
+                priority: "high" as const 
+              },
+              { 
+                id: "tc-1-2", 
+                name: "Test expiration date validation", 
+                description: "Verify expired cards are rejected", 
+                priority: "high" as const 
+              },
+              { 
+                id: "tc-1-3", 
+                name: "Test CVV code validation", 
+                description: "Ensure CVV must be 3-4 digits", 
+                priority: "medium" as const 
+              }
+            ]
+          },
+          {
+            id: "comp-2",
+            name: "Cart Summary Component",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-2-1", 
+                name: "Verify item quantity updates", 
+                description: "Test that changing quantity updates total price", 
+                priority: "high" as const 
+              },
+              { 
+                id: "tc-2-2", 
+                name: "Test removing items from cart", 
+                description: "Ensure items can be removed from cart", 
+                priority: "medium" as const 
+              }
+            ]
+          },
+          {
+            id: "comp-3",
+            name: "Payment Gateway Fallback",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-3-1", 
+                name: "Test primary gateway failure", 
+                description: "Verify system falls back to secondary gateway", 
+                priority: "high" as const 
+              }
+            ]
+          },
+          {
+            id: "comp-4",
+            name: "Order Confirmation Flow",
+            covered: false,
+            status: "partial" as const,
+            testCases: [
+              { 
+                id: "tc-4-1", 
+                name: "Verify order confirmation email", 
+                description: "Test that email is sent with correct order details", 
+                priority: "high" as const 
+              },
+              { 
+                id: "tc-4-2", 
+                name: "Test order summary page", 
+                description: "Ensure page shows all purchased items", 
+                priority: "medium" as const 
+              }
+            ]
+          }
+        ],
+        suggestions: [
+          { 
+            id: "sug-1", 
+            name: "Payment Form Error Handling", 
+            description: "Test how the payment form handles network errors and timeouts" 
+          },
+          { 
+            id: "sug-2", 
+            name: "User Authentication Flow", 
+            description: "Test guest checkout vs registered user checkout paths" 
+          },
+          { 
+            id: "sug-3", 
+            name: "Cart Item Quantity Update", 
+            description: "Verify inventory checks when updating quantities" 
+          },
+          { 
+            id: "sug-4", 
+            name: "Address Validation Logic", 
+            description: "Test international address formats and validation" 
+          },
+          { 
+            id: "sug-5", 
+            name: "Checkout Process Completion", 
+            description: "Test order completion with various payment methods" 
+          }
+        ],
+        aiMessage: "Test payment failure scenarios and edge cases for improved coverage."
+      };
+    }
+    // Content/blog site detection
+    else if (domain.includes('blog') || domain.includes('news') || domain.includes('content')) {
+      return {
+        components: [
+          {
+            id: "comp-1",
+            name: "Comment Submission Form",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-1-1", 
+                name: "Test markdown formatting", 
+                description: "Verify comment formatting options work correctly", 
+                priority: "medium" as const 
+              },
+              { 
+                id: "tc-1-2", 
+                name: "Test comment length limits", 
+                description: "Ensure character limits are enforced", 
+                priority: "low" as const 
+              }
+            ]
+          },
+          {
+            id: "comp-2",
+            name: "Content Search Functionality",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-2-1", 
+                name: "Verify search results relevance", 
+                description: "Test search returns relevant content", 
+                priority: "high" as const 
+              },
+              { 
+                id: "tc-2-2", 
+                name: "Test search filters", 
+                description: "Verify date and category filters work", 
+                priority: "medium" as const 
+              }
+            ]
+          },
+          {
+            id: "comp-3",
+            name: "Social Sharing Buttons",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-3-1", 
+                name: "Test sharing on platforms", 
+                description: "Verify content is shared correctly to socials", 
+                priority: "medium" as const 
+              }
+            ]
+          }
+        ],
+        suggestions: [
+          { 
+            id: "sug-1", 
+            name: "Content Rating System", 
+            description: "Test user ratings functionality and aggregation" 
+          },
+          { 
+            id: "sug-2", 
+            name: "Related Content Algorithm", 
+            description: "Verify suggested content relevance and display" 
+          },
+          { 
+            id: "sug-3", 
+            name: "Subscribe Form Validation", 
+            description: "Test email validation and subscription confirmation" 
+          },
+          { 
+            id: "sug-4", 
+            name: "Content Pagination", 
+            description: "Test navigation between paginated content" 
+          },
+          { 
+            id: "sug-5", 
+            name: "Media Embedding", 
+            description: "Verify video and image embeds function correctly" 
+          }
+        ],
+        aiMessage: "Focus testing on search functionality and content filtering for improved user experience."
+      };
+    }
+    // Default/generic site detection
+    else {
+      return {
+        components: [
+          {
+            id: "comp-1",
+            name: "Contact Form Validation",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-1-1", 
+                name: "Test email validation", 
+                description: "Verify email format validation", 
+                priority: "high" as const 
+              },
+              { 
+                id: "tc-1-2", 
+                name: "Test required fields", 
+                description: "Ensure required fields cannot be empty", 
+                priority: "high" as const 
+              }
+            ]
+          },
+          {
+            id: "comp-2",
+            name: "Navigation Menu",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-2-1", 
+                name: "Test mobile responsiveness", 
+                description: "Verify menu collapses on mobile devices", 
+                priority: "high" as const 
+              },
+              { 
+                id: "tc-2-2", 
+                name: "Test navigation links", 
+                description: "Ensure all links direct to correct pages", 
+                priority: "medium" as const 
+              }
+            ]
+          },
+          {
+            id: "comp-3",
+            name: "Image Carousel",
+            covered: false,
+            status: "not-tested" as const,
+            testCases: [
+              { 
+                id: "tc-3-1", 
+                name: "Test auto-rotation", 
+                description: "Verify images rotate automatically", 
+                priority: "low" as const 
+              },
+              { 
+                id: "tc-3-2", 
+                name: "Test manual navigation", 
+                description: "Test next/previous controls work", 
+                priority: "medium" as const 
+              }
+            ]
+          }
+        ],
+        suggestions: [
+          { 
+            id: "sug-1", 
+            name: "Page Load Performance", 
+            description: "Test page load times across different devices" 
+          },
+          { 
+            id: "sug-2", 
+            name: "Cross-browser Compatibility", 
+            description: "Verify site works on Chrome, Firefox, Safari" 
+          },
+          { 
+            id: "sug-3", 
+            name: "Form Submission Handling", 
+            description: "Test error and success states for forms" 
+          },
+          { 
+            id: "sug-4", 
+            name: "Accessibility Compliance", 
+            description: "Test keyboard navigation and screen reader support" 
+          },
+          { 
+            id: "sug-5", 
+            name: "Responsive Layouts", 
+            description: "Verify layouts adapt to different screen sizes" 
+          }
+        ],
+        aiMessage: "Focus on testing responsive design and mobile usability for better user experience."
+      };
+    }
   };
   
   useEffect(() => {
@@ -293,25 +663,62 @@ const TestingSystem = () => {
                     </div>
                     <div className="p-4">
                       <ul className="space-y-4">
-                        {testSuggestions.map((suggestion, index) => (
-                          <li key={index} className="flex items-start border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                            <div className="w-4 h-4 mt-0.5 rounded-sm border border-gray-300 flex items-center justify-center bg-white mr-3">
-                              {suggestion.covered && (
-                                <Check className="w-3 h-3 text-highlight-500" />
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <div className="text-sm font-medium">{suggestion.name}</div>
-                                  <div className="text-xs text-gray-500">{suggestion.testCases} test cases</div>
+                        {testSuggestions.map((suggestion) => (
+                          <li key={suggestion.id} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                            <Collapsible
+                              open={expandedItems[suggestion.id] || false}
+                              onOpenChange={() => toggleExpanded(suggestion.id)}
+                              className="w-full"
+                            >
+                              <div className="flex items-start">
+                                <div className="mt-0.5 mr-3">
+                                  <Checkbox 
+                                    id={`check-${suggestion.id}`}
+                                    checked={suggestion.covered}
+                                    onCheckedChange={() => handleCheckboxChange(suggestion.id)}
+                                  />
                                 </div>
-                                <div className={`ml-auto text-xs font-medium ${getStatusColor(suggestion.status)}`}>
-                                  {suggestion.status === "covered" ? "Covered" : 
-                                   suggestion.status === "not-tested" ? "Not Tested" : "Partial"}
+                                <div className="flex-1">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <CollapsibleTrigger className="flex items-center text-left w-full">
+                                        <div>
+                                          <div className="text-sm font-medium">{suggestion.name}</div>
+                                          <div className="text-xs text-gray-500">{suggestion.testCases.length} test cases</div>
+                                        </div>
+                                        <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${expandedItems[suggestion.id] ? 'rotate-180' : ''}`} />
+                                      </CollapsibleTrigger>
+                                    </div>
+                                    <div className={`ml-auto text-xs font-medium ${getStatusColor(suggestion.status)}`}>
+                                      {suggestion.status === "covered" ? "Covered" : 
+                                      suggestion.status === "not-tested" ? "Not Tested" : "Partial"}
+                                    </div>
+                                  </div>
+                                  
+                                  <CollapsibleContent>
+                                    <div className="mt-4 pl-4 border-l-2 border-gray-100">
+                                      <h4 className="font-medium text-sm mb-2">Test Cases:</h4>
+                                      <ul className="space-y-3">
+                                        {suggestion.testCases.map((testCase) => (
+                                          <li key={testCase.id} className="text-sm">
+                                            <div className="font-medium">{testCase.name}</div>
+                                            <div className="text-xs text-gray-500">{testCase.description}</div>
+                                            <div className="mt-1">
+                                              <span className={`text-xs px-2 py-0.5 rounded-full 
+                                                ${testCase.priority === 'high' ? 'bg-red-100 text-red-700' : 
+                                                 testCase.priority === 'medium' ? 'bg-amber-100 text-amber-700' : 
+                                                 'bg-blue-100 text-blue-700'}`}>
+                                                {testCase.priority} priority
+                                              </span>
+                                            </div>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  </CollapsibleContent>
                                 </div>
                               </div>
-                            </div>
+                            </Collapsible>
                           </li>
                         ))}
                       </ul>
@@ -335,21 +742,24 @@ const TestingSystem = () => {
                     </div>
                     <div className="p-6">
                       <ul className="space-y-4">
-                        {[
-                          "Payment Form Error Handling",
-                          "User Authentication Flow",
-                          "Cart Item Quantity Update",
-                          "Address Validation Logic",
-                          "Checkout Process Completion"
-                        ].map((test, index) => (
-                          <li key={index} className="flex items-center justify-between">
+                        {aiSuggestions.map((suggestion, index) => (
+                          <li key={suggestion.id} className="flex items-center justify-between">
                             <div className="flex items-center">
                               <div className="w-8 h-8 rounded-full bg-omnitest-100 dark:bg-omnitest-900 flex items-center justify-center text-omnitest-700 dark:text-omnitest-300 mr-3">
                                 {index + 1}
                               </div>
-                              <span>{test}</span>
+                              <div>
+                                <div className="font-medium">{suggestion.name}</div>
+                                <div className="text-xs text-gray-500">{suggestion.description}</div>
+                              </div>
                             </div>
-                            <Button variant="outline" size="sm">Add</Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleAddSuggestion(suggestion)}
+                            >
+                              Add
+                            </Button>
                           </li>
                         ))}
                       </ul>
@@ -452,3 +862,4 @@ const TestingSystem = () => {
 };
 
 export default TestingSystem;
+
