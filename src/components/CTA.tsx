@@ -16,7 +16,7 @@ const CTA = () => {
             Join hundreds of companies that have revolutionized their QA approach with OmniTest's AI-powered testing insights.
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
             <Button size="lg" className="bg-white hover:bg-gray-100 text-omnitest-600 font-medium px-8 py-6" asChild>
               <Link to="/system">Try Now Free</Link>
             </Button>
@@ -28,6 +28,12 @@ const CTA = () => {
               onClick={() => setIsDemoModalOpen(true)}
             >
               Schedule Demo
+            </Button>
+          </div>
+          
+          <div className="flex justify-center mb-8">
+            <Button variant="link" className="text-white underline" asChild>
+              <Link to="/history">View Testing History</Link>
             </Button>
           </div>
           

@@ -23,6 +23,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import TestingSystem from "./pages/TestingSystem";
+import History from "./pages/History";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/case-studies" element={<CaseStudies />} />
           <Route path="/documentation" element={<Documentation />} />
           <Route path="/system" element={<TestingSystem />} />
+          <Route path="/history" element={<History />} />
           
           {/* Company Routes */}
           <Route path="/about" element={<About />} />

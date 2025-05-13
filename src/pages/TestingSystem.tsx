@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Check, X, AlertCircle, ChevronDown, FilePlus, Clipboard, LayoutDashboard, Globe, Info } from "lucide-react";
@@ -9,52 +10,61 @@ import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Checkbox } from "@/components/ui/checkbox";
 
-// Interface for test case types
-interface TestCase {
-  id: string;
-  name: string;
-  description: string;
-  priority: "high" | "medium" | "low";
-}
+// Custom components
+import MetricsCards from "@/components/testing/MetricsCards";
+import ComponentList from "@/components/testing/ComponentList";
+import SuggestionsList from "@/components/testing/SuggestionsList";
+import ComponentPanel from "@/components/testing/ComponentPanel";
+import NotificationBell from "@/components/NotificationBell";
 
-interface DetectedComponent {
-  id: string;
-  name: string;
-  covered: boolean;
-  status: "covered" | "not-tested" | "partial";
-  testCases: TestCase[];
-}
-
-interface AISuggestion {
-  id: string;
-  name: string;
-  description: string;
-}
+// Utils
+import { siteAnalyzer, DetectedComponent, AISuggestion } from "@/utils/siteAnalyzer";
+import { websocketService } from "@/utils/websocket";
 
 const TestingSystem = () => {
+  const location = useLocation();
+  const initialUrl = location.state?.initialUrl || "";
+  
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [targetUrl, setTargetUrl] = useState("");
+  const [targetUrl, setTargetUrl] = useState(initialUrl);
   const [scanning, setScanning] = useState(false);
   const [scanComplete, setScanComplete] = useState(false);
   const [elementCount, setElementCount] = useState(0);
   const [testSuggestions, setTestSuggestions] = useState<DetectedComponent[]>([]);
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
   const [aiSuggestion, setAiSuggestion] = useState("");
-  const [expandedItems, setExpandedItems] = useState<{[key: string]: boolean}>({});
+  const [coverage, setCoverage] = useState(0);
+  const [issuesDetected, setIssuesDetected] = useState(0);
   
-  // Toggle expanded state for a component
-  const toggleExpanded = (id: string) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+  // Connect to WebSocket on component mount
+  useEffect(() => {
+    websocketService.connect()
+      .on('scan-progress', handleScanProgress);
+      
+    return () => {
+      websocketService.off('scan-progress', handleScanProgress);
+      websocketService.disconnect();
+    };
+  }, []);
+  
+  // Load initial URL if provided
+  useEffect(() => {
+    if (initialUrl) {
+      handleUrlSubmit(new Event('submit') as any);
+    }
+  }, [initialUrl]);
+  
+  // Handle scan progress updates
+  const handleScanProgress = (data: any) => {
+    if (data.testId === targetUrl) {
+      console.log("Scan progress:", data.progress);
+      // Update UI based on progress
+    }
   };
   
-  // Handle checkbox change for a component
-  const handleCheckboxChange = (id: string) => {
+  // Handle component status change (checkbox toggle)
+  const handleComponentStatusChange = (id: string) => {
     setTestSuggestions(prev => 
       prev.map(item => 
         item.id === id 
@@ -109,7 +119,7 @@ const TestingSystem = () => {
     }
   };
   
-  const handleUrlSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleUrlSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!targetUrl) {
@@ -121,346 +131,66 @@ const TestingSystem = () => {
       return;
     }
     
-    // Start the scanning simulation
+    // Start the scanning process
     setScanning(true);
     setScanComplete(false);
     setTestSuggestions([]);
     setAiSuggestions([]);
     setElementCount(0);
-    setExpandedItems({});
     
-    // Simulate scanning process
-    setTimeout(() => {
+    try {
       // Simulate element detection over time
       let count = 0;
       const elementInterval = setInterval(() => {
         count += Math.floor(Math.random() * 3) + 1;
         if (count >= 23) {
-          count = 23; // Final count matching design
+          count = 23; // Final count
           clearInterval(elementInterval);
         }
         setElementCount(count);
       }, 300);
       
-      // After 3 seconds, show completed analysis and suggestions
-      setTimeout(() => {
-        setScanning(false);
-        setScanComplete(true);
-        
-        // Generate dynamic test suggestions based on the URL
-        const urlDomain = new URL(targetUrl.startsWith('http') ? targetUrl : `https://${targetUrl}`).hostname;
-        console.log("Analyzing domain:", urlDomain);
-        
-        // Dynamic test suggestions based on the URL
-        const generatedSuggestions = getAnalysisByDomain(urlDomain);
-        setTestSuggestions(generatedSuggestions.components);
-        setAiSuggestions(generatedSuggestions.suggestions);
-        setAiSuggestion(generatedSuggestions.aiMessage);
-        
-      }, 3000);
-    }, 1000);
-  };
-  
-  // Dynamic analysis based on domain
-  const getAnalysisByDomain = (domain: string) => {
-    // E-commerce detection
-    if (domain.includes('shop') || domain.includes('store') || domain.includes('commerce') || domain.includes('cart')) {
-      return {
-        components: [
-          {
-            id: "comp-1",
-            name: "Payment Form Validation",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-1-1", 
-                name: "Validate credit card number format", 
-                description: "Test that invalid credit card formats are rejected", 
-                priority: "high" as const 
-              },
-              { 
-                id: "tc-1-2", 
-                name: "Test expiration date validation", 
-                description: "Verify expired cards are rejected", 
-                priority: "high" as const 
-              },
-              { 
-                id: "tc-1-3", 
-                name: "Test CVV code validation", 
-                description: "Ensure CVV must be 3-4 digits", 
-                priority: "medium" as const 
-              }
-            ]
-          },
-          {
-            id: "comp-2",
-            name: "Cart Summary Component",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-2-1", 
-                name: "Verify item quantity updates", 
-                description: "Test that changing quantity updates total price", 
-                priority: "high" as const 
-              },
-              { 
-                id: "tc-2-2", 
-                name: "Test removing items from cart", 
-                description: "Ensure items can be removed from cart", 
-                priority: "medium" as const 
-              }
-            ]
-          },
-          {
-            id: "comp-3",
-            name: "Payment Gateway Fallback",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-3-1", 
-                name: "Test primary gateway failure", 
-                description: "Verify system falls back to secondary gateway", 
-                priority: "high" as const 
-              }
-            ]
-          },
-          {
-            id: "comp-4",
-            name: "Order Confirmation Flow",
-            covered: false,
-            status: "partial" as const,
-            testCases: [
-              { 
-                id: "tc-4-1", 
-                name: "Verify order confirmation email", 
-                description: "Test that email is sent with correct order details", 
-                priority: "high" as const 
-              },
-              { 
-                id: "tc-4-2", 
-                name: "Test order summary page", 
-                description: "Ensure page shows all purchased items", 
-                priority: "medium" as const 
-              }
-            ]
-          }
-        ],
-        suggestions: [
-          { 
-            id: "sug-1", 
-            name: "Payment Form Error Handling", 
-            description: "Test how the payment form handles network errors and timeouts" 
-          },
-          { 
-            id: "sug-2", 
-            name: "User Authentication Flow", 
-            description: "Test guest checkout vs registered user checkout paths" 
-          },
-          { 
-            id: "sug-3", 
-            name: "Cart Item Quantity Update", 
-            description: "Verify inventory checks when updating quantities" 
-          },
-          { 
-            id: "sug-4", 
-            name: "Address Validation Logic", 
-            description: "Test international address formats and validation" 
-          },
-          { 
-            id: "sug-5", 
-            name: "Checkout Process Completion", 
-            description: "Test order completion with various payment methods" 
-          }
-        ],
-        aiMessage: "Test payment failure scenarios and edge cases for improved coverage."
-      };
-    }
-    // Content/blog site detection
-    else if (domain.includes('blog') || domain.includes('news') || domain.includes('content')) {
-      return {
-        components: [
-          {
-            id: "comp-1",
-            name: "Comment Submission Form",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-1-1", 
-                name: "Test markdown formatting", 
-                description: "Verify comment formatting options work correctly", 
-                priority: "medium" as const 
-              },
-              { 
-                id: "tc-1-2", 
-                name: "Test comment length limits", 
-                description: "Ensure character limits are enforced", 
-                priority: "low" as const 
-              }
-            ]
-          },
-          {
-            id: "comp-2",
-            name: "Content Search Functionality",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-2-1", 
-                name: "Verify search results relevance", 
-                description: "Test search returns relevant content", 
-                priority: "high" as const 
-              },
-              { 
-                id: "tc-2-2", 
-                name: "Test search filters", 
-                description: "Verify date and category filters work", 
-                priority: "medium" as const 
-              }
-            ]
-          },
-          {
-            id: "comp-3",
-            name: "Social Sharing Buttons",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-3-1", 
-                name: "Test sharing on platforms", 
-                description: "Verify content is shared correctly to socials", 
-                priority: "medium" as const 
-              }
-            ]
-          }
-        ],
-        suggestions: [
-          { 
-            id: "sug-1", 
-            name: "Content Rating System", 
-            description: "Test user ratings functionality and aggregation" 
-          },
-          { 
-            id: "sug-2", 
-            name: "Related Content Algorithm", 
-            description: "Verify suggested content relevance and display" 
-          },
-          { 
-            id: "sug-3", 
-            name: "Subscribe Form Validation", 
-            description: "Test email validation and subscription confirmation" 
-          },
-          { 
-            id: "sug-4", 
-            name: "Content Pagination", 
-            description: "Test navigation between paginated content" 
-          },
-          { 
-            id: "sug-5", 
-            name: "Media Embedding", 
-            description: "Verify video and image embeds function correctly" 
-          }
-        ],
-        aiMessage: "Focus testing on search functionality and content filtering for improved user experience."
-      };
-    }
-    // Default/generic site detection
-    else {
-      return {
-        components: [
-          {
-            id: "comp-1",
-            name: "Contact Form Validation",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-1-1", 
-                name: "Test email validation", 
-                description: "Verify email format validation", 
-                priority: "high" as const 
-              },
-              { 
-                id: "tc-1-2", 
-                name: "Test required fields", 
-                description: "Ensure required fields cannot be empty", 
-                priority: "high" as const 
-              }
-            ]
-          },
-          {
-            id: "comp-2",
-            name: "Navigation Menu",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-2-1", 
-                name: "Test mobile responsiveness", 
-                description: "Verify menu collapses on mobile devices", 
-                priority: "high" as const 
-              },
-              { 
-                id: "tc-2-2", 
-                name: "Test navigation links", 
-                description: "Ensure all links direct to correct pages", 
-                priority: "medium" as const 
-              }
-            ]
-          },
-          {
-            id: "comp-3",
-            name: "Image Carousel",
-            covered: false,
-            status: "not-tested" as const,
-            testCases: [
-              { 
-                id: "tc-3-1", 
-                name: "Test auto-rotation", 
-                description: "Verify images rotate automatically", 
-                priority: "low" as const 
-              },
-              { 
-                id: "tc-3-2", 
-                name: "Test manual navigation", 
-                description: "Test next/previous controls work", 
-                priority: "medium" as const 
-              }
-            ]
-          }
-        ],
-        suggestions: [
-          { 
-            id: "sug-1", 
-            name: "Page Load Performance", 
-            description: "Test page load times across different devices" 
-          },
-          { 
-            id: "sug-2", 
-            name: "Cross-browser Compatibility", 
-            description: "Verify site works on Chrome, Firefox, Safari" 
-          },
-          { 
-            id: "sug-3", 
-            name: "Form Submission Handling", 
-            description: "Test error and success states for forms" 
-          },
-          { 
-            id: "sug-4", 
-            name: "Accessibility Compliance", 
-            description: "Test keyboard navigation and screen reader support" 
-          },
-          { 
-            id: "sug-5", 
-            name: "Responsive Layouts", 
-            description: "Verify layouts adapt to different screen sizes" 
-          }
-        ],
-        aiMessage: "Focus on testing responsive design and mobile usability for better user experience."
-      };
+      // Perform actual analysis using the site analyzer
+      const analysisResult = await siteAnalyzer.analyzeUrl(targetUrl);
+      
+      // Update state with real results
+      setTestSuggestions(analysisResult.components);
+      setAiSuggestions(analysisResult.suggestions);
+      setAiSuggestion(analysisResult.aiMessage);
+      setElementCount(analysisResult.elementCount);
+      setCoverage(analysisResult.coverage);
+      setIssuesDetected(analysisResult.issuesDetected);
+      
+      // Show success notification
+      toast({
+        title: "Analysis Complete",
+        description: `Successfully analyzed ${targetUrl} and found ${analysisResult.components.length} testable components.`,
+        variant: "default"
+      });
+      
+      // Add notification for new test insights
+      websocketService.send({
+        type: 'notification',
+        data: {
+          title: 'New Test Insights Available',
+          message: `${analysisResult.components.length} components detected on ${targetUrl}`,
+          type: 'info'
+        },
+        timestamp: Date.now()
+      });
+      
+      setScanning(false);
+      setScanComplete(true);
+    } catch (error) {
+      console.error("Error analyzing URL:", error);
+      
+      toast({
+        title: "Analysis Failed",
+        description: "Failed to analyze the website. Please try again.",
+        variant: "destructive"
+      });
+      
+      setScanning(false);
     }
   };
   
@@ -470,19 +200,6 @@ const TestingSystem = () => {
       setScanning(false);
     }
   }, [activeTab, scanning]);
-  
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "covered":
-        return "text-green-600";
-      case "not-tested":
-        return "text-red-600";
-      case "partial":
-        return "text-amber-600";
-      default:
-        return "text-gray-600";
-    }
-  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -504,6 +221,7 @@ const TestingSystem = () => {
               </div>
               
               <div className="flex items-center space-x-4">
+                <NotificationBell />
                 <Button variant="outline" size="sm" className="text-sm">
                   <FilePlus className="w-4 h-4 mr-2" /> New Test
                 </Button>
@@ -562,73 +280,13 @@ const TestingSystem = () => {
             </div>
             
             <TabsContent value="dashboard" className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-medium">Components Detected</h3>
-                    <span className="text-2xl font-bold text-omnitest-600">
-                      {scanning ? (
-                        <Skeleton className="w-8 h-8 rounded-md" />
-                      ) : (
-                        elementCount || "-"
-                      )}
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                    <div 
-                      className="bg-omnitest-500 h-2 rounded-full transition-all duration-500 ease-in-out" 
-                      style={{width: scanning ? `${Math.min((elementCount / 23) * 100, 100)}%` : scanComplete ? '100%' : '0%'}}
-                    ></div>
-                  </div>
-                  <p className="text-xs mt-2 text-gray-500 dark:text-gray-400">
-                    {scanning ? "Scanning in progress..." : scanComplete ? "100% detection complete" : "Waiting to scan"}
-                  </p>
-                </div>
-                
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-medium">Test Coverage</h3>
-                    <span className="text-2xl font-bold text-omnitest-600">
-                      {scanning || !scanComplete ? (
-                        <Skeleton className="w-8 h-8 rounded-md" />
-                      ) : (
-                        "68%"
-                      )}
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                    <div 
-                      className="bg-omnitest-500 h-2 rounded-full transition-all duration-500 ease-in-out" 
-                      style={{width: scanComplete ? '68%' : '0%'}}
-                    ></div>
-                  </div>
-                  <p className="text-xs mt-2 text-gray-500 dark:text-gray-400">
-                    {scanning ? "Calculating coverage..." : scanComplete ? "+12% from last scan" : "Waiting to scan"}
-                  </p>
-                </div>
-                
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-medium">Issues Detected</h3>
-                    <span className="text-2xl font-bold text-amber-600">
-                      {scanning || !scanComplete ? (
-                        <Skeleton className="w-8 h-8 rounded-md" />
-                      ) : (
-                        "7"
-                      )}
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                    <div 
-                      className="bg-amber-500 h-2 rounded-full transition-all duration-500 ease-in-out" 
-                      style={{width: scanComplete ? '30%' : '0%'}}
-                    ></div>
-                  </div>
-                  <p className="text-xs mt-2 text-gray-500 dark:text-gray-400">
-                    {scanning ? "Finding issues..." : scanComplete ? "7 issues recommended for testing" : "Waiting to scan"}
-                  </p>
-                </div>
-              </div>
+              <MetricsCards 
+                scanning={scanning}
+                scanComplete={scanComplete}
+                elementCount={elementCount}
+                coverage={coverage}
+                issuesDetected={issuesDetected}
+              />
               
               {!scanComplete && !scanning && (
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
@@ -661,78 +319,11 @@ const TestingSystem = () => {
                         AI Analysis Complete
                       </div>
                     </div>
-                    <div className="p-4">
-                      <ul className="space-y-4">
-                        {testSuggestions.map((suggestion) => (
-                          <li key={suggestion.id} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                            <Collapsible
-                              open={expandedItems[suggestion.id] || false}
-                              onOpenChange={() => toggleExpanded(suggestion.id)}
-                              className="w-full"
-                            >
-                              <div className="flex items-start">
-                                <div className="mt-0.5 mr-3">
-                                  <Checkbox 
-                                    id={`check-${suggestion.id}`}
-                                    checked={suggestion.covered}
-                                    onCheckedChange={() => handleCheckboxChange(suggestion.id)}
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <CollapsibleTrigger className="flex items-center text-left w-full">
-                                        <div>
-                                          <div className="text-sm font-medium">{suggestion.name}</div>
-                                          <div className="text-xs text-gray-500">{suggestion.testCases.length} test cases</div>
-                                        </div>
-                                        <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${expandedItems[suggestion.id] ? 'rotate-180' : ''}`} />
-                                      </CollapsibleTrigger>
-                                    </div>
-                                    <div className={`ml-auto text-xs font-medium ${getStatusColor(suggestion.status)}`}>
-                                      {suggestion.status === "covered" ? "Covered" : 
-                                      suggestion.status === "not-tested" ? "Not Tested" : "Partial"}
-                                    </div>
-                                  </div>
-                                  
-                                  <CollapsibleContent>
-                                    <div className="mt-4 pl-4 border-l-2 border-gray-100">
-                                      <h4 className="font-medium text-sm mb-2">Test Cases:</h4>
-                                      <ul className="space-y-3">
-                                        {suggestion.testCases.map((testCase) => (
-                                          <li key={testCase.id} className="text-sm">
-                                            <div className="font-medium">{testCase.name}</div>
-                                            <div className="text-xs text-gray-500">{testCase.description}</div>
-                                            <div className="mt-1">
-                                              <span className={`text-xs px-2 py-0.5 rounded-full 
-                                                ${testCase.priority === 'high' ? 'bg-red-100 text-red-700' : 
-                                                 testCase.priority === 'medium' ? 'bg-amber-100 text-amber-700' : 
-                                                 'bg-blue-100 text-blue-700'}`}>
-                                                {testCase.priority} priority
-                                              </span>
-                                            </div>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  </CollapsibleContent>
-                                </div>
-                              </div>
-                            </Collapsible>
-                          </li>
-                        ))}
-                      </ul>
-                      
-                      {aiSuggestion && (
-                        <div className="mt-5 p-3 rounded bg-blue-50 border border-blue-100 flex items-center">
-                          <Info className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0" />
-                          <div className="text-sm">
-                            <span className="font-medium text-blue-600">AI Suggestion:</span>
-                            <span className="ml-2 text-blue-700">{aiSuggestion}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <ComponentList 
+                      components={testSuggestions}
+                      aiSuggestion={aiSuggestion}
+                      onComponentStatusChange={handleComponentStatusChange}
+                    />
                   </div>
                   
                   {/* AI Test Suggestions */}
@@ -740,117 +331,29 @@ const TestingSystem = () => {
                     <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                       <h3 className="font-semibold">AI Test Suggestions</h3>
                     </div>
-                    <div className="p-6">
-                      <ul className="space-y-4">
-                        {aiSuggestions.map((suggestion, index) => (
-                          <li key={suggestion.id} className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <div className="w-8 h-8 rounded-full bg-omnitest-100 dark:bg-omnitest-900 flex items-center justify-center text-omnitest-700 dark:text-omnitest-300 mr-3">
-                                {index + 1}
-                              </div>
-                              <div>
-                                <div className="font-medium">{suggestion.name}</div>
-                                <div className="text-xs text-gray-500">{suggestion.description}</div>
-                              </div>
-                            </div>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleAddSuggestion(suggestion)}
-                            >
-                              Add
-                            </Button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    <SuggestionsList 
+                      suggestions={aiSuggestions}
+                      onAddSuggestion={handleAddSuggestion}
+                    />
                   </div>
                 </div>
               )}
             </TabsContent>
             
             <TabsContent value="components" className="p-0">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                  <h3 className="font-semibold">Detected Components</h3>
-                </div>
-                <div className="p-6">
-                  {!scanComplete ? (
-                    <div className="text-center py-12">
-                      <Globe className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-xl font-medium mb-2">No Components Detected</h3>
-                      <p className="text-gray-500 max-w-md mx-auto">
-                        Scan a website to detect components and generate test suggestions.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {[
-                        { name: "Login Form", coverage: 90, tests: 5 },
-                        { name: "Navigation Menu", coverage: 75, tests: 4 },
-                        { name: "Product Card", coverage: 100, tests: 8 },
-                        { name: "Search Bar", coverage: 50, tests: 2 },
-                        { name: "Checkout Form", coverage: 60, tests: 6 },
-                        { name: "User Profile", coverage: 40, tests: 3 }
-                      ].map((component, index) => (
-                        <div 
-                          key={index} 
-                          className="p-4 rounded-lg border cursor-pointer transition-colors border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-                        >
-                          <h4 className="font-medium">{component.name}</h4>
-                          <div className="flex items-center justify-between mt-2">
-                            <div className="flex items-center">
-                              <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">Coverage:</span>
-                              <div className="h-2 w-16 bg-gray-200 dark:bg-gray-700 rounded-full">
-                                <div 
-                                  className={`h-2 rounded-full ${
-                                    component.coverage >= 70 ? "bg-green-500" : 
-                                    component.coverage >= 40 ? "bg-amber-500" : "bg-red-500"
-                                  }`} 
-                                  style={{width: `${component.coverage}%`}}
-                                ></div>
-                              </div>
-                              <span className="text-xs ml-2">{component.coverage}%</span>
-                            </div>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{component.tests} tests</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ComponentPanel activeTab="components" scanComplete={scanComplete} />
             </TabsContent>
             
-            {/* Other tab content */}
             <TabsContent value="tests" className="p-0">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-                <Clipboard className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-medium mb-2">Test Management</h3>
-                <p className="text-gray-500 max-w-md mx-auto">
-                  Scan a website first to generate and manage test cases.
-                </p>
-              </div>
+              <ComponentPanel activeTab="tests" scanComplete={scanComplete} />
             </TabsContent>
             
             <TabsContent value="coverage" className="p-0">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-                <Check className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-medium mb-2">Coverage Reports</h3>
-                <p className="text-gray-500 max-w-md mx-auto">
-                  Scan a website first to generate and view coverage reports.
-                </p>
-              </div>
+              <ComponentPanel activeTab="coverage" scanComplete={scanComplete} />
             </TabsContent>
             
             <TabsContent value="analytics" className="p-0">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-                <LayoutDashboard className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-medium mb-2">Testing Analytics</h3>
-                <p className="text-gray-500 max-w-md mx-auto">
-                  Scan a website first to generate and view testing analytics.
-                </p>
-              </div>
+              <ComponentPanel activeTab="analytics" scanComplete={scanComplete} />
             </TabsContent>
           </Tabs>
         </div>
@@ -862,4 +365,3 @@ const TestingSystem = () => {
 };
 
 export default TestingSystem;
-
