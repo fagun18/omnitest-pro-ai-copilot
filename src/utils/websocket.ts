@@ -1,4 +1,3 @@
-
 // WebSocket service for real-time notifications and updates
 export interface WebSocketMessage {
   type: 'notification' | 'test-completed' | 'scan-progress' | 'error';
@@ -8,6 +7,7 @@ export interface WebSocketMessage {
 
 class WebSocketService {
   private socket: WebSocket | null = null;
+  private mockSocket: { readyState: number } | null = null; // Create a mock socket object instead
   private listeners: Map<string, Function[]> = new Map();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -17,9 +17,11 @@ class WebSocketService {
     // In a real implementation, this would connect to an actual WebSocket server
     console.log(`Connecting to WebSocket at ${url}`);
     
-    // Simulate WebSocket with events
-    this.socket = {} as WebSocket;
-    this.socket.readyState = 1; // OPEN
+    // Simulate WebSocket with events using a mock object instead
+    this.mockSocket = { readyState: 1 }; // OPEN
+    
+    // We're not assigning to the WebSocket.readyState directly
+    // Just keeping a reference to our mock state
     
     // Simulate connection events
     setTimeout(() => {
@@ -56,7 +58,8 @@ class WebSocketService {
   }
   
   send(message: WebSocketMessage) {
-    if (!this.socket || this.socket.readyState !== 1) {
+    // Check our mock socket state instead of actual WebSocket
+    if (!this.mockSocket || this.mockSocket.readyState !== 1) {
       console.error('WebSocket is not connected');
       return false;
     }
@@ -84,14 +87,14 @@ class WebSocketService {
   }
   
   disconnect() {
-    if (!this.socket) return;
+    if (!this.mockSocket) return;
     
     console.log('Disconnecting WebSocket');
     
     // Simulate disconnect
     setTimeout(() => {
       this.emit('disconnect', { reason: 'client_closed', timestamp: Date.now() });
-      this.socket = null;
+      this.mockSocket = null;
     }, 300);
   }
 }
